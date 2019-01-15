@@ -108,7 +108,7 @@ class Cache
         }
         return true;
     }
-
+    
     /**
      * 文件缓存，成功返回文件路径
      * @param string $content 文件内容

@@ -63,7 +63,7 @@ class Loader
      */
     static public function register($event, $method, $class = null)
     {
-        if (!empty($class) && class_exists($class, false) && method_exists($class, $method)) {
+        if (!empty($class) ) { //&& class_exists($class, false) && method_exists($class, $method) delete
             self::$callback[$event] = array($class, $method);
         } else {
             self::$callback[$event] = $method;
