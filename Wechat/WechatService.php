@@ -358,7 +358,8 @@ class WechatService
      */
     public function getOauthAccessToken($appid)
     {
-        $code = isset($_GET['code']) ? $_GET['code'] : '';
+        $code = request()->query('code', '');
+        //$code = isset($_GET['code']) ? $_GET['code'] : '';
         if (empty($code)) {
             return false;
         }

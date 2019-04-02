@@ -99,17 +99,18 @@ class Common
 
     /**
      * 接口验证
+     * 改成支持swoft方式
      * @return bool
      */
     public function valid()
     {
         $encryptStr = "";
-        if ($_SERVER['REQUEST_METHOD'] == "POST") {
-            $postStr = file_get_contents("php://input");
+        if (request()->getSwooleRequest()->server['request_method'] == "POST") {
+            $postStr = request()->getBody()->getContents();
             $disableEntities = libxml_disable_entity_loader(true);
             $array = (array)simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
             libxml_disable_entity_loader($disableEntities);
-            $this->encrypt_type = isset($_GET["encrypt_type"]) ? $_GET["encrypt_type"] : '';
+            $this->encrypt_type =  request()->query('encrypt_type', '');
             if ($this->encrypt_type == 'aes') {
                 $encryptStr = $array['Encrypt'];
                 !class_exists('Prpcrypt', false) && require __DIR__ . '/Prpcrypt.php';
@@ -126,12 +127,12 @@ class Common
             } else {
                 $this->postxml = $postStr;
             }
-        } elseif (isset($_GET["echostr"])) {
-            if ($this->checkSignature()) {
-                @ob_clean();
-                exit($_GET["echostr"]);
-            }
-            return false;
+            //} elseif (isset($_GET["echostr"])) {
+            //     if ($this->checkSignature()) {
+            //         @ob_clean();
+            //         exit($_GET["echostr"]);
+            //     }
+            //return false;
         }
         if (!$this->checkSignature($encryptStr)) {
             $this->errMsg = 'Interface authentication failed, please use the correct method to call.';
@@ -145,11 +146,17 @@ class Common
      * @param string $str
      * @return bool
      */
-    private function checkSignature($str = '')
+    public function checkSignature($str = '')
     {
-        $signature = isset($_GET["msg_signature"]) ? $_GET["msg_signature"] : (isset($_GET["signature"]) ? $_GET["signature"] : '');
-        $timestamp = isset($_GET["timestamp"]) ? $_GET["timestamp"] : '';
-        $nonce = isset($_GET["nonce"]) ? $_GET["nonce"] : '';
+        $signature = request()->query('msg_signature', '');
+        if (!$signature) {
+            $signature = request()->query('signature', '');
+        }
+        $timestamp = request()->query('timestamp', ''); 
+        $nonce = request()->query('nonce', '');
+        // $signature = isset($_GET["msg_signature"]) ? $_GET["msg_signature"] : (isset($_GET["signature"]) ? $_GET["signature"] : '');
+        // $timestamp = isset($_GET["timestamp"]) ? $_GET["timestamp"] : '';
+        // $nonce = isset($_GET["nonce"]) ? $_GET["nonce"] : '';
         $tmpArr = array($this->token, $timestamp, $nonce, $str);
         sort($tmpArr, SORT_STRING);
         if (sha1(implode($tmpArr)) == $signature) {

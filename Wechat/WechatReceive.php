@@ -52,7 +52,7 @@ class WechatReceive extends WechatMessage
         if ($this->_receive) {
             return $this;
         }
-        $postStr = !empty($this->postxml) ? $this->postxml : file_get_contents("php://input");
+        $postStr = !empty($this->postxml) ? $this->postxml : request()->getBody()->getContents();
         if (!empty($postStr)) {
             $disableEntities = libxml_disable_entity_loader(true);
             $this->_receive = (array)simplexml_load_string($postStr, 'SimpleXMLElement', LIBXML_NOCDATA);
@@ -60,7 +60,7 @@ class WechatReceive extends WechatMessage
         }
         return $this;
     }
-
+    
     /**
      * 获取微信服务器发来的信息数据
      * @return array

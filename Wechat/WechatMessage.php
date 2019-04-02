@@ -193,7 +193,7 @@ class WechatMessage extends Common
         }
         return false;
     }
-
+    
     /**
      * 根据标签进行群发 ( 订阅号与服务号认证后均可用 )
      * @param array $data 消息结构
